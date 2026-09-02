@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>超级马里奥：听音辨字大冒险 (欧路字典离线版)</title>
+<title>超级马里奥：听音辨字大冒险 (大字气泡版)</title>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -202,26 +202,26 @@
     100% { transform: translateY(0); }
   }
 
-  /* 答对后向上飘出的英文/拼音气泡 */
+  /* 🌟 答对后向上飘出的英文/拼音气泡：字号显著放大 (20px) 方便学生观看 */
   .hint-fly-pop {
     position: absolute;
-    background: rgba(0, 0, 0, 0.9);
-    color: #ffd700;
-    font-size: 13px;
-    font-weight: bold;
-    padding: 3px 10px;
-    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.95);
+    color: #00ffff;
+    font-size: 20px;
+    font-weight: 900;
+    padding: 6px 14px;
+    border-radius: 8px;
     white-space: nowrap;
-    border: 2px solid #f39c12;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.6);
-    animation: hintFlyUp 0.8s ease-out forwards;
+    border: 3px solid #f39c12;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.7);
+    animation: hintFlyUp 0.9s ease-out forwards;
     pointer-events: none;
     z-index: 50;
   }
   @keyframes hintFlyUp {
-    0% { transform: translateY(0) scale(0.6); opacity: 0; }
-    30% { transform: translateY(-30px) scale(1.1); opacity: 1; }
-    100% { transform: translateY(-70px) scale(1); opacity: 0; }
+    0% { transform: translateY(0) scale(0.5); opacity: 0; }
+    30% { transform: translateY(-35px) scale(1.15); opacity: 1; }
+    100% { transform: translateY(-80px) scale(1); opacity: 0; }
   }
 
   /* 板栗仔 */
@@ -443,7 +443,7 @@
   <!-- 欧路字典离线检索输入栏 -->
   <div class="control-row">
     <label id="txt-eng-label">欧路字典离线检索:</label>
-    <input type="text" id="english-input" placeholder="输入英文查词并加入词库 (例如: book, school, book)..." onkeydown="if(event.key==='Enter') addEnglishWordFromEudic()">
+    <input type="text" id="english-input" placeholder="输入英文查词并加入词库 (例如: cat, dog, apple)..." onkeydown="if(event.key==='Enter') addEnglishWordFromEudic()">
     <button id="btn-add-eng" class="btn-base btn-accent" onclick="addEnglishWordFromEudic()">📖 离线查词 / Eudic</button>
   </div>
 
@@ -455,41 +455,33 @@
 </div>
 
 <div class="tip" id="txt-tip">
-  欧路字典离线词典已挂载！输入英文可瞬间离线查出对应中文并加入词汇表。
+  答对后向上弹出的英文/拼音提示气泡已放大至 20px，方便学生清晰观看！
 </div>
 
 <script>
 // ====== 欧路字典（Eudic）离线本地核心词典库 ======
 const eudicOfflineDict = {
-  // 基础/数字/自然
   "one": "一", "two": "二", "three": "三", "four": "四", "five": "五",
   "six": "六", "seven": "七", "eight": "八", "nine": "九", "ten": "十",
   "big": "大", "small": "小", "many": "多", "few": "少", "sun": "日",
   "moon": "月", "mountain": "山", "water": "水", "book": "书", "school": "学校",
 
-  // 身体
   "head": "头", "hair": "发", "eye": "眼", "ear": "耳", "nose": "鼻",
   "mouth": "嘴", "hand": "手", "foot": "足",
 
-  // 人物
   "dad": "爸爸", "mom": "妈妈", "brother": "哥哥", "sister": "姐姐",
   "grandfather": "爷爷", "grandmother": "奶奶", "teacher": "老师", "friend": "朋友",
 
-  // 动物
   "cat": "猫", "dog": "狗", "bird": "鸟", "fish": "鱼", "rabbit": "兔子",
   "panda": "熊猫", "elephant": "大象", "tiger": "老虎", "hippo": "河马",
 
-  // 食物水果
   "apple": "苹果", "banana": "香蕉", "watermelon": "西瓜", "grape": "葡萄", "ice cream": "冰淇淋",
 
-  // 颜色
   "red": "红色", "blue": "蓝色", "yellow": "黄色", "green": "绿色", "black": "黑色", "white": "白色",
 
-  // 其他
   "life": "生活", "study": "学习"
 };
 
-// 中英文双向对照映射库（用于顶对汉字时的英文气泡提示）
 const vocabDict = {
   "一": { en: "one", py: "yī" }, "二": { en: "two", py: "èr" }, "三": { en: "three", py: "sān" }, 
   "四": { en: "four", py: "sì" }, "五": { en: "five", py: "wǔ" }, "六": { en: "six", py: "liù" }, 
@@ -537,13 +529,11 @@ function getPinyinOrEnglish(word) {
   return pyResult.join(' ');
 }
 
-// ====== 欧路字典离线查词核心逻辑 ======
-function addEnglishWordFromEudic() {
+async function addEnglishWordFromEudic() {
   const inputEl = document.getElementById('english-input');
   const query = inputEl.value.trim().toLowerCase();
   if (!query) return;
 
-  // 1. 从离线词典中精准或模糊匹配
   let matchedZh = eudicOfflineDict[query];
   if (!matchedZh) {
     for (let eng in eudicOfflineDict) {
@@ -554,11 +544,24 @@ function addEnglishWordFromEudic() {
     }
   }
 
+  if (!matchedZh) {
+    try {
+      const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(query)}&langpair=en|zh`);
+      const data = await res.json();
+      if (data && data.responseData && data.responseData.translatedText) {
+        let translated = data.responseData.translatedText.trim();
+        matchedZh = translated.replace(/[^\u4e00-\u9fa5]/g, '').slice(0, 4);
+      }
+    } catch (err) {
+      console.warn("网络翻译失败", err);
+    }
+  }
+
   if (matchedZh) {
+    vocabDict[matchedZh] = { en: query, py: matchedZh };
     appendWordToCustomList(matchedZh);
     inputEl.value = '';
   } else {
-    // 离线兜底：如果没查到，将英文直接作为生词或提示音标加入
     vocabDict[query] = { en: query, py: query };
     appendWordToCustomList(query);
     inputEl.value = '';
@@ -734,7 +737,7 @@ const i18n = {
     engLabel: "欧路字典离线检索:",
     customLabel: "当前/自定义词汇表 (最少4个):",
     update: "更新词库",
-    tip: "欧路字典离线词典已挂载！输入英文可瞬间离线查出对应中文并加入词汇表。",
+    tip: "答对后向上弹出的英文/拼音提示气泡已放大至 20px，方便学生清晰观看！",
     bannerTitle: "🎉 关卡完成！COURSE CLEAR!",
     bannerSub: "马里奥已进入城堡，正在载入下一关..."
   },
@@ -745,7 +748,7 @@ const i18n = {
     engLabel: "Eudic Offline Search:",
     customLabel: "Custom Vocab (Min 4):",
     update: "Update Vocab",
-    tip: "Eudic offline dictionary loaded! Type English to instantly translate and add offline.",
+    tip: "Popup hint bubbles have been enlarged to 20px for students to see clearly!",
     bannerTitle: "🎉 COURSE CLEAR!",
     bannerSub: "Mario entered the castle, loading next stage..."
   }
@@ -1066,7 +1069,7 @@ function createHintFlyPop(x, y, text) {
   pop.style.left = (x + 10) + 'px';
   pop.style.bottom = (y + 54) + 'px';
   document.getElementById('game-container').appendChild(pop);
-  setTimeout(() => pop.remove(), 800);
+  setTimeout(() => pop.remove(), 900);
 }
 
 function enterCastleAndAdvance() {
